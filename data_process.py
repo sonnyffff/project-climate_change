@@ -135,25 +135,39 @@ def get_directory() -> str:
     return current_file_dir
 
 
-def generate_report(datacenter: DataCenter) -> Any:
+def generate_report(datacenter: DataCenter) -> None:
     """Create an excel file containing complied datasets and save in CSC course project folder"""
-    app = xw.App(visible=True, add_book=False)
+    app = xw.App(visible=False, add_book=False)
     wb = app.books.add()
-    wb.activate()
-    # sht = wb.sheets['Report']
-    # sht.range('a1').value = ['This excel file contains processed and predicted data generate in year'
-    #                          + str(datacenter.get_current_year())]
-    # sht.range('a2').value = ['For CSC110 project usage only']
-    # sht.range('a3').value = ['Year', 'Temperature', 'Sea Level']
-    # temp = []
-    # sea = []
-    # for year in range(datacenter.get_start_year(), datacenter.get_end_year() + 1):
-    #     temp.append(datacenter.get_temperature(year))
-    #     sea.append(datacenter.get_temperature(year))
-    # sht.range('a4:a'+str(datacenter.get_end_year() - 4)).options(transpose=True).value = temp
-    # sht.range('b4:b' + str(datacenter.get_end_year() - 4)).options(transpose=True).value = sea
+    sht = wb.sheets["sheet1"]
+    sht.range('A1').value = 'This excel file contains processed and predicted data generate in year '\
+                            + str(datacenter.get_current_year())
+    sht.range('A2').value = ['For CSC110 project usage only']
+    sht.range('B2').column_width = 18
+    sht.range('C2').column_width = 15
+    sht.range('D2').column_width = 25
+    sht.range('E2').column_width = 25
+    sht.range('A3').value = ['Year', 'Temperature', 'Sea Level', 'Predicted Temperature', 'Predicted Sea Level']
+    temp = []
+    sea = []
+    years = []
+    pre_temp = []
+    pre_sea = []
+    for year in range(datacenter.get_start_year()[0], datacenter.get_end_year() + 1):
+        temp.append(datacenter.get_temperature(year))
+        sea.append(datacenter.get_sealevel(year))
+        years.append(year)
+        pre_temp.append(datacenter.get_predict_temperature(year))
+        pre_sea.append(datacenter.get_predict_sealevel(year))
+    sht.range('a4:a' + str(datacenter.get_end_year() - 4)).options(transpose=True).value = years
+    sht.range('b4:b'+str(datacenter.get_end_year() - 4)).options(transpose=True).value = temp
+    sht.range('c4:c' + str(datacenter.get_end_year() - 4)).options(transpose=True).value = sea
+    sht.range('d4:d' + str(datacenter.get_end_year() - 4)).options(transpose=True).value = pre_temp
+    sht.range('e4:e' + str(datacenter.get_end_year() - 4)).options(transpose=True).value = pre_sea
     wb.save(get_directory() + '/Compiled Datasets.xlsx')
-
+    wb.close()
+    app.quit()
+    print('Report Successful Generated!')
 
 
 
